@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+##!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import sys
@@ -20,7 +20,7 @@ class Exx(QMainWindow, gui.Ui_MainWindow):
         self.initButtonSignal()
         self.initButtonIcon()
         self.slider_signal_init()
-        self.getAlbumCover()
+        self.launchAlbumCover()
         self.initLabel()
         self.mute_val = False
         self.state_playing = None
@@ -35,7 +35,6 @@ class Exx(QMainWindow, gui.Ui_MainWindow):
     def initPygame(self):
         pygame.init()
         pygame.mixer.init()
-        self.initMusic('Ready to play music')
 
     def initButtonSignal(self):
         self.button_play.clicked.connect(self.playingEvent)
@@ -67,6 +66,7 @@ class Exx(QMainWindow, gui.Ui_MainWindow):
         self.setLabelTimeUp(0)
         self.label_total_time.setText(self.formatTime(0))
         self.setVolume()
+        self.label_name_song.setText('Ready to play music')
 
     def slider_signal_init(self):
         self.progress_bar.sliderClicked.connect(
@@ -87,57 +87,49 @@ class Exx(QMainWindow, gui.Ui_MainWindow):
             self.initListFile(value)
 
     def initMusic(self, value):
-        if value == 'Ready to play music':
-            self.label_name_song.setText(f'{value:^100}')
+        self.button_play.setIcon(QIcon(':/sourse/pause.png'))
+        self.name_song = value
+        try:
+            pygame.mixer.music.load(self.name_song)
+            pygame.mixer.music.play()
+        except pygame.error as err:
+            print(err)
+            self.getAlbumCover()
+            self.label_name_song.setText('Unsupported format')
+            if self.state_playing is not None:
+                self.stop()
+            self.button_play.setEnabled(False)
+            self.label_total_time.setText(self.formatTime(0))
         else:
-            self.button_play.setIcon(QIcon(':/sourse/pause.png'))
-            self.name_song = value
-            try:
-                pygame.mixer.music.load(self.name_song)
-                pygame.mixer.music.play()
-            except pygame.error as err:
-                print(err)
-                self.getAlbumCover()
-                self.label_name_song.setText('Unsupported format')
-                if self.state_playing is not None:
-                    self.stop()
-                self.button_play.setEnabled(False)
-                self.label_total_time.setText(self.formatTime(0))
-            else:
-                self.setProgressBar()  # ползунок на начало
-                self.setLabelTimeUp(0)
-                self.getLength(self.name_song)
-                self.getNameSong(self.name_song)
+            self.setProgressBar()  # ползунок на начало
+            self.setLabelTimeUp(0)
+            self.getLength(self.name_song)
+            self.getNameSong(self.name_song)
 
-                # громкость звука перед началом проигрывания
-                self.setVolume()
+            # громкость звука перед началом проигрывания
+            self.setVolume()
 
-                # отображение обложки
-                self.getAlbumCover(self.name_song)
+            # отображение обложки
+            self.getAlbumCover(self.name_song)
 
-                self.button_play.setEnabled(True)
-                self.button_stop.setEnabled(True)
-                self.progress_bar.setEnabled(True)
+            self.button_play.setEnabled(True)
+            self.button_stop.setEnabled(True)
+            self.progress_bar.setEnabled(True)
 
-                self.time_mus = 0
-                self.setProgressBarTimer()
-                self.setMusicTimer()
+            self.time_mus = 0
+            self.setProgressBarTimer()
+            self.setMusicTimer()
 
-                self.label_total_time.setText(self.formatTime(self.length))
+            self.label_total_time.setText(self.formatTime(self.length))
 
-                self.state_playing = 'play'
+            self.state_playing = 'play'
 
     def getAlbumCover(self, song=None):
         try:
             file = File(song)
             artwork = file.tags['APIC:']
         except (KeyError, TypeError, MutagenError):
-            self.label_album_cover.setPixmap(
-                QPixmap(':/sourse/pass.jpg').scaled(
-                    500,
-                    500,
-                    Qt.KeepAspectRatio,
-                    Qt.SmoothTransformation))
+            self.launchAlbumCover()
         else:
             pixmap = QPixmap()
             pixmap.loadFromData(artwork.data)
@@ -147,6 +139,14 @@ class Exx(QMainWindow, gui.Ui_MainWindow):
                     500,
                     Qt.KeepAspectRatio,
                     Qt.SmoothTransformation))
+
+    def launchAlbumCover(self):
+        self.label_album_cover.setPixmap(QPixmap(
+            ':/sourse/pass.jpg').scaled(
+                500,
+                500,
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation))
 
     def getNameSong(self, song=None):
         try:
@@ -197,7 +197,7 @@ class Exx(QMainWindow, gui.Ui_MainWindow):
     def formatTime(self, n):
         n = round(n)
         h = n // 3600
-        m = (n//60) % 60
+        m = n // 60 % 60
         s = n % 60
         if s < 10 and h == 0:
             return f"{m}:{s:0>2}"
@@ -234,7 +234,7 @@ class Exx(QMainWindow, gui.Ui_MainWindow):
 
     def nextSong(self):
         try:
-            self.name_song = self.directory[self.position_playlist+1]
+            self.name_song = self.directory[self.position_playlist + 1]
         except IndexError:
             True
         else:
@@ -246,7 +246,7 @@ class Exx(QMainWindow, gui.Ui_MainWindow):
         if self.position_playlist < 1:
             True
         else:
-            self.name_song = self.directory[self.position_playlist-1]
+            self.name_song = self.directory[self.position_playlist - 1]
             self.position_playlist -= 1
             self.initMusic(self.name_song)
             self.getPositionTracklist()
@@ -275,7 +275,7 @@ class Exx(QMainWindow, gui.Ui_MainWindow):
                 20,
                 Qt.KeepAspectRatio,
                 Qt.SmoothTransformation))
-        pygame.mixer.music.set_volume(volume/100)
+        pygame.mixer.music.set_volume(volume / 100)
 
     def mute(self):
         if self.mute_val is False:
@@ -294,7 +294,7 @@ class Exx(QMainWindow, gui.Ui_MainWindow):
             self.tmr0 = QTimer()
             self.tmr0.timeout.connect(lambda: self.setProgressBar(
                 self.progress_bar.value()))
-            self.tmr0.start(round(self.length*10))
+            self.tmr0.start(round(self.length * 10))
 
     def setMusicTimer(self, val=None):
         if val == 'stop':
@@ -313,24 +313,24 @@ class Exx(QMainWindow, gui.Ui_MainWindow):
         self.time_mus += 1
         if self.time_mus >= self.length * 100:
             self.time_mus = 0
-            if len(self.directory) > 1 and (self.position_playlist+1 !=
-                                            len(self.directory)):
+            if len(self.directory) > 1 and (self.position_playlist + 1
+                                            != len(self.directory)):
                 self.nextSong()
             else:
                 self.stop()
         if self.time_mus % 100 == 0:
-            self.setLabelTimeUp(self.time_mus//100)
+            self.setLabelTimeUp(self.time_mus // 100)
 
     def setPlaybackPosition(self, value):
         if self.progress_bar.isEnabled() is True:
             time = self.length / 100 * value
-            self.time_mus = round(time*100)
+            self.time_mus = round(time * 100)
             try:
                 pygame.mixer.music.set_pos(time)
             except pygame.error:
                 self.label_name_song.setText('codec error')
                 self.stop()
-            self.setLabelTimeUp(self.time_mus//100)
+            self.setLabelTimeUp(self.time_mus // 100)
 
     def closeEvent(self, event):
         pygame.quit()
