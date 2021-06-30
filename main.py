@@ -1,4 +1,4 @@
-##!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import sys
@@ -243,13 +243,18 @@ class Exx(QMainWindow, gui.Ui_MainWindow):
             self.getPositionTracklist()
 
     def prevSong(self):
-        if self.position_playlist < 1:
-            True
-        else:
-            self.name_song = self.directory[self.position_playlist - 1]
-            self.position_playlist -= 1
+        if self.state_playing == 'play' and self.time_mus // 100 > 5:
             self.initMusic(self.name_song)
-            self.getPositionTracklist()
+        elif self.state_playing == 'pause':
+            self.stop()
+        else:
+            if self.position_playlist < 1:
+                pass
+            else:
+                self.name_song = self.directory[self.position_playlist - 1]
+                self.position_playlist -= 1
+                self.initMusic(self.name_song)
+                self.getPositionTracklist()
 
     def getPositionTracklist(self):
         self.label_tracklist_info.setText(
@@ -343,7 +348,6 @@ def main():
     palette.setColor(QPalette.Highlight, QColor(200, 200, 150).lighter())
     app.setPalette(palette)
     window = Exx()
-    window.setFixedSize(500, 591)
     window.show()
     app.exec_()
 
