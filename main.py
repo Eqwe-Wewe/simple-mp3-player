@@ -70,12 +70,17 @@ class Exx(QMainWindow, gui.Ui_MainWindow):
 
     def slider_signal_init(self):
         self.progress_bar.sliderClicked.connect(
-            lambda: self.setPlaybackPosition(self.progress_bar.value()))
+            lambda: self.setPlaybackPosition(
+                self.progress_bar.value()
+            )
+        )
         self.progress_bar.setEnabled(False)
         self.slider_volume.valueChanged.connect(
-            self.setVolume)
+            self.setVolume
+        )
         self.slider_volume.sliderMoved.connect(
-            self.setVolume)
+            self.setVolume
+        )
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
@@ -83,7 +88,10 @@ class Exx(QMainWindow, gui.Ui_MainWindow):
 
     def dropEvent(self, event):
         if event.mimeData().hasUrls():
-            value = [url.path().lstrip('/') for url in event.mimeData().urls()]
+            value = [
+                url.path().lstrip('/')
+                for url in event.mimeData().urls()
+            ]
             self.initListFile(value)
 
     def initMusic(self, value):
@@ -138,15 +146,21 @@ class Exx(QMainWindow, gui.Ui_MainWindow):
                     500,
                     500,
                     Qt.KeepAspectRatio,
-                    Qt.SmoothTransformation))
+                    Qt.SmoothTransformation
+                )
+            )
 
     def launchAlbumCover(self):
-        self.label_album_cover.setPixmap(QPixmap(
-            ':/sourse/pass.jpg').scaled(
+        self.label_album_cover.setPixmap(
+            QPixmap(
+                ':/sourse/pass.jpg'
+            ).scaled(
                 500,
                 500,
                 Qt.KeepAspectRatio,
-                Qt.SmoothTransformation))
+                Qt.SmoothTransformation
+            )
+        )
 
     def getNameSong(self, song=None):
         try:
@@ -279,7 +293,9 @@ class Exx(QMainWindow, gui.Ui_MainWindow):
                 30,
                 20,
                 Qt.KeepAspectRatio,
-                Qt.SmoothTransformation))
+                Qt.SmoothTransformation
+            )
+        )
         pygame.mixer.music.set_volume(volume / 100)
 
     def mute(self):
@@ -297,8 +313,11 @@ class Exx(QMainWindow, gui.Ui_MainWindow):
             self.tmr0.stop()
         else:
             self.tmr0 = QTimer()
-            self.tmr0.timeout.connect(lambda: self.setProgressBar(
-                self.progress_bar.value()))
+            self.tmr0.timeout.connect(
+                lambda: self.setProgressBar(
+                    self.progress_bar.value()
+                )
+            )
             self.tmr0.start(round(self.length * 10))
 
     def setMusicTimer(self, val=None):
@@ -318,8 +337,9 @@ class Exx(QMainWindow, gui.Ui_MainWindow):
         self.time_mus += 1
         if self.time_mus >= self.length * 100:
             self.time_mus = 0
-            if len(self.directory) > 1 and (self.position_playlist + 1
-                                            != len(self.directory)):
+            if len(self.directory) > 1 and (
+                self.position_playlist + 1 != len(self.directory)
+            ):
                 self.nextSong()
             else:
                 self.stop()
