@@ -9,8 +9,15 @@ class Slider(QtWidgets.QSlider):
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton and self.isEnabled() is True:
             x = event.pos().x()
-            value = round((self.maximum() - self.minimum()) * x / self.width() +
-                          self.minimum())
+            value = round(
+                (
+                    self.maximum()
+                    - self.minimum()
+                )
+                * x
+                / self.width()
+                + self.minimum()
+            )
             if 0 <= value < 100:
                 self.setValue(value)
                 self.sliderClicked.emit()
@@ -27,8 +34,7 @@ class Label(QtWidgets.QLabel):
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(500, 590)
-        MainWindow.setMinimumSize(QtCore.QSize(390, 0))
+        MainWindow.setFixedSize(500, 591)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.label_name_song = QtWidgets.QLabel(self.centralwidget)
@@ -36,8 +42,9 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.label_name_song.setFont(font)
-        self.label_name_song.setStyleSheet("background-color: rgb(0, 0, 0);\n"
-                                           "color: rgb(255, 255, 255);")
+        self.label_name_song.setStyleSheet(
+            "background-color: rgb(0, 0, 0);\n"
+            "color: rgb(255, 255, 255);")
         self.label_name_song.setAlignment(QtCore.Qt.AlignCenter)
         self.label_name_song.setObjectName("label_name_song")
         self.widget = QtWidgets.QWidget(self.centralwidget)
@@ -65,7 +72,8 @@ class Ui_MainWindow(object):
         self.label_time_up.setAlignment(
             QtCore.Qt.AlignRight |
             QtCore.Qt.AlignTrailing |
-            QtCore.Qt.AlignVCenter)
+            QtCore.Qt.AlignVCenter
+        )
         self.label_time_up.setObjectName("label_time_up")
         self.label_total_time = QtWidgets.QLabel(self.widget)
         self.label_total_time.setGeometry(QtCore.QRect(60, 30, 31, 16))
@@ -113,7 +121,6 @@ class Ui_MainWindow(object):
         self.label_tracklist_info.setStyleSheet("color: rgb(255, 255, 255);")
         self.label_tracklist_info.setText("")
         self.label_tracklist_info.setObjectName("label_tracklist_info")
-        # self.progress_bar = QtWidgets.QSlider(self.widget)
         self.progress_bar = Slider(self.widget)
         self.progress_bar.setGeometry(QtCore.QRect(10, 5, 481, 12))
         self.progress_bar.setToolTipDuration(-1)
